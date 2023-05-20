@@ -64,7 +64,7 @@ class Client implements HttpClientInterface
             $options[\BrokeYourBike\HasSourceModel\Enums\RequestOptions::SOURCE_MODEL] = $transaction;
         }
 
-        $uri = (string) $this->resolveUriFor($this->config->getUrl(), "/tsehayBank/payments/{$this->config->getFrom()}");
+        $uri = (string) $this->resolveUriFor($this->config->getUrl(), "tsehayBank/payments/{$this->config->getFrom()}");
         $response = $this->httpClient->request(HttpMethodEnum::POST->value, $uri, $options);
 
         return new TransactionResponse($response);
