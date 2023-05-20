@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/compare/v0.1.0...v0.2.0) (2023-05-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* slash
+
+### Bug Fixes
+
+* slash ([f3d47be](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/commit/f3d47be92c4d38634e2c4aa5769153f0a0335966))
+
 ## 0.1.0 (2023-05-20)
 
 
