@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/compare/v0.2.0...v0.3.0) (2023-08-22)
+
+
+### Features
+
+* can query account name ([2013e07](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/commit/2013e078e7c33ab2fcefe6ee564c28d2ade0a068))
+* parse error details ([36d32a7](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/commit/36d32a718834395b87b880a9bc50fb84bf85afb7))
+
 ## [0.2.0](https://www.github.com/brokeyourbike/tsehay-bank-api-client-php/compare/v0.1.0...v0.2.0) (2023-05-20)
 
 
