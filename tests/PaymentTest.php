@@ -120,4 +120,68 @@ class PaymentTest extends TestCase
         $this->assertInstanceOf(PaymentResponse::class, $requestResult);
         $this->assertEquals('success', $requestResult->status);
     }
+
+    /** @test */
+    public function it_can_handle_error(): void
+    {
+        $transaction = $this->getMockBuilder(TransactionInterface::class)->getMock();
+        $transaction->method('getReference')->willReturn('ref-123');
+        $transaction->method('getAccountNumber')->willReturn('12345');
+        $transaction->method('getCurrencyCode')->willReturn('USD');
+        $transaction->method('getAmount')->willReturn(50.00);
+
+        /** @var TransactionInterface $transaction */
+        $this->assertInstanceOf(TransactionInterface::class, $transaction);
+
+        $mockedConfig = $this->getMockBuilder(ConfigInterface::class)->getMock();
+        $mockedConfig->method('getUrl')->willReturn('https://api.example/');
+        $mockedConfig->method('getFrom')->willReturn('EXAMPLE');
+        $mockedConfig->method('getToken')->willReturn('super-secure-token');
+
+        $mockedResponse = $this->getMockBuilder(ResponseInterface::class)->getMock();
+        $mockedResponse->method('getStatusCode')->willReturn(200);
+        $mockedResponse->method('getBody')
+            ->willReturn('{
+                "header": {
+                    "audit": {
+                        "T24_time": 744,
+                        "responseParse_time": 5,
+                        "requestParse_time": 1508
+                    },
+                    "id": "19T3",
+                    "status": "failed"
+                },
+                "error": {
+                    "type": "BUSINESS",
+                    "errorDetails": [
+                        {
+                            "fieldName": "debitAccountId",
+                            "code": "E-128302",
+                            "message": "DEBIT AND CREDIT ACCOUNT POSITION TYPE NOT SAME"
+                        },
+                        {
+                            "fieldName": "creditAccountId",
+                            "code": "E-127331",
+                            "message": "INPUT MISSING"
+                        }
+                    ]
+                }
+            }');
+
+        /** @var \Mockery\MockInterface $mockedClient */
+        $mockedClient = \Mockery::mock(\GuzzleHttp\Client::class);
+        $mockedClient->shouldReceive('request')->once()->andReturn($mockedResponse);
+
+        /**
+         * @var ConfigInterface $mockedConfig
+         * @var \GuzzleHttp\Client $mockedClient
+         * */
+        $api = new Client($mockedConfig, $mockedClient);
+
+        $requestResult = $api->payment($transaction);
+        $this->assertInstanceOf(PaymentResponse::class, $requestResult);
+        $this->assertEquals('failed', $requestResult->status);
+        $this->assertCount(2, $requestResult->errors);
+        $this->assertEquals('E-128302', $requestResult->errors[0]->code);
+    }
 }
