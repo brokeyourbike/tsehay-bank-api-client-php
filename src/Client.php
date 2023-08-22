@@ -9,7 +9,8 @@
 namespace BrokeYourBike\TsehayBank;
 
 use GuzzleHttp\ClientInterface;
-use BrokeYourBike\TsehayBank\Models\TransactionResponse;
+use BrokeYourBike\TsehayBank\Responses\PaymentResponse;
+use BrokeYourBike\TsehayBank\Responses\AccountResponse;
 use BrokeYourBike\TsehayBank\Interfaces\TransactionInterface;
 use BrokeYourBike\TsehayBank\Interfaces\ConfigInterface;
 use BrokeYourBike\ResolveUri\ResolveUriTrait;
@@ -41,7 +42,7 @@ class Client implements HttpClientInterface
         return $this->config;
     }
 
-    public function payment(TransactionInterface $transaction): TransactionResponse
+    public function payment(TransactionInterface $transaction): PaymentResponse
     {
         $options = [
             \GuzzleHttp\RequestOptions::HEADERS => [
@@ -50,9 +51,9 @@ class Client implements HttpClientInterface
             ],
             \GuzzleHttp\RequestOptions::JSON => [
                 'body' => [
-                    'creditCurrencyId' => $transaction->getCurrencyCode(),
-                    'creditAccountId' => $transaction->getBankAccount(),
-                    'creditAmount' => $transaction->getAmount(),
+                    'debitCurrencyId' => $transaction->getCurrencyCode(),
+                    'debitAmount' => $transaction->getAmount(),
+                    'creditAccountId' => $transaction->getAccountNumber(),
                     'paymentDetails' => [
                         ['paymentDetail' => $transaction->getReference()],
                     ],
@@ -64,9 +65,29 @@ class Client implements HttpClientInterface
             $options[\BrokeYourBike\HasSourceModel\Enums\RequestOptions::SOURCE_MODEL] = $transaction;
         }
 
-        $uri = (string) $this->resolveUriFor($this->config->getUrl(), "tsehayBank/payments/{$this->config->getFrom()}");
+        $uri = $this->prepareUri("tsehayBank/payments/{$this->config->getFrom()}");
         $response = $this->httpClient->request(HttpMethodEnum::POST->value, $uri, $options);
 
-        return new TransactionResponse($response);
+        return new PaymentResponse($response);
+    }
+
+    public function accountName(string $accountNumber): AccountResponse
+    {
+        $options = [
+            \GuzzleHttp\RequestOptions::HEADERS => [
+                'Accept' => 'application/json',
+                'Authorization' => "Bearer {$this->config->getToken()}",
+            ],
+        ];
+
+        $uri = $this->prepareUri("tsehayBank/account/{$accountNumber}/name");
+        $response = $this->httpClient->request(HttpMethodEnum::GET->value, $uri, $options);
+
+        return new AccountResponse($response);
+    }
+
+    private function prepareUri(string $path): string
+    {
+        return (string) $this->resolveUriFor(rtrim($this->config->getUrl(), '/'), $path);
     }
 }

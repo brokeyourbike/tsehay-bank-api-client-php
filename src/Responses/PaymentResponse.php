@@ -6,15 +6,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 
-namespace BrokeYourBike\TsehayBank\Interfaces;
+namespace BrokeYourBike\TsehayBank\Responses;
+
+use Spatie\DataTransferObject\Attributes\MapFrom;
+use BrokeYourBike\DataTransferObject\JsonResponse;
 
 /**
  * @author Ivan Stasiuk <ivan@stasi.uk>
  */
-interface TransactionInterface
+class PaymentResponse extends JsonResponse
 {
-    public function getReference(): string;
-    public function getAmount(): float;
-    public function getCurrencyCode(): string;
-    public function getAccountNumber(): string;
+    #[MapFrom('header.status')]
+    public ?string $status;
 }
+
