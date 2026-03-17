@@ -61,8 +61,8 @@ class Client implements HttpClientInterface
             ],
         ];
 
-        if ($transaction instanceof SourceModelInterface){
-            $options[\BrokeYourBike\HasSourceModel\Enums\RequestOptions::SOURCE_MODEL] = $transaction;
+        if ($this->getSourceModel() != null){
+            $options[\BrokeYourBike\HasSourceModel\Enums\RequestOptions::SOURCE_MODEL] = $this->getSourceModel();
         }
 
         $uri = $this->prepareUri("tsehayBank/payments/{$this->config->getFrom()}");
@@ -79,6 +79,10 @@ class Client implements HttpClientInterface
                 'Authorization' => "Bearer {$this->config->getToken()}",
             ],
         ];
+
+        if ($this->getSourceModel() != null){
+            $options[\BrokeYourBike\HasSourceModel\Enums\RequestOptions::SOURCE_MODEL] = $this->getSourceModel();
+        }
 
         $uri = $this->prepareUri("tsehayBank/account/{$accountNumber}/name");
         $response = $this->httpClient->request(HttpMethodEnum::GET->value, $uri, $options);
